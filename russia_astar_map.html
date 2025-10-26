@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Russia A* Navigation Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: #f8f9fa; }
+    #controls {
+      padding: 10px;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #ccc;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    #map { height: 90vh; width: 100vw; }
+    select, button {
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background: #0056b3; }
+    #info {
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      color: #333;
+      background: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <label>Start:</label>
+    <select id="start"></select>
+    <label>Goal:</label>
+    <select id="goal"></select>
+    <button onclick="runAStar()">Run A*</button>
+  </div>
+  <div id="info"></div>
+  <div id="map"></div>
+
+  <script>
+    // JSON data with remaining cities and edges
+    const data = { 
+      "cities": {
+        "spb": {"name": "Saint Petersburg", "lat": 59.9311, "lon": 30.3609, "h_to_vlad_km": 6535.3},
+        "moscow": {"name": "Moscow", "lat": 55.7558, "lon": 37.6176, "h_to_vlad_km": 6415.4},
+        "nizhny": {"name": "Nizhny Novgorod", "lat": 56.3287, "lon": 44.002, "h_to_vlad_km": 6036.2},
+        "kazan": {"name": "Kazan", "lat": 55.7961, "lon": 49.1064, "h_to_vlad_km": 5772.6},
+        "yekat": {"name": "Yekaterinburg", "lat": 56.8389, "lon": 60.6057, "h_to_vlad_km": 5064.7},
+        "chelyabinsk": {"name": "Chelyabinsk", "lat": 55.1644, "lon": 61.4368, "h_to_vlad_km": 5000},
+        "omsk": {"name": "Omsk", "lat": 54.9885, "lon": 73.3242, "h_to_vlad_km": 3800},
+        "novosib": {"name": "Novosibirsk", "lat": 55.0084, "lon": 82.9357, "h_to_vlad_km": 3714.1},
+        "tomsk": {"name": "Tomsk", "lat": 56.4846, "lon": 84.9486, "h_to_vlad_km": 3550},
+        "kras": {"name": "Krasnoyarsk", "lat": 56.0153, "lon": 92.8932, "h_to_vlad_km": 3101.0},
+        "irkutsk": {"name": "Irkutsk", "lat": 52.2869, "lon": 104.305, "h_to_vlad_km": 2283.1},
+        "ulan": {"name": "Ulan-Ude", "lat": 51.8333, "lon": 107.6167, "h_to_vlad_km": 1800},
+        "chita": {"name": "Chita", "lat": 52.034, "lon": 113.5, "h_to_vlad_km": 1690.9},
+        "khab": {"name": "Khabarovsk", "lat": 48.4808, "lon": 135.0718, "h_to_vlad_km": 645.6},
+        "vlad": {"name": "Vladivostok", "lat": 43.1155, "lon": 131.8855, "h_to_vlad_km": 0.0},
+        "rostov": {"name": "Rostov-on-Don", "lat": 47.2357, "lon": 39.7015, "h_to_vlad_km": 6200},
+        "volgograd": {"name": "Volgograd", "lat": 48.7080, "lon": 44.5133, "h_to_vlad_km": 6100},
+        "samara": {"name": "Samara", "lat": 53.1959, "lon": 50.1000, "h_to_vlad_km": 5500},
+        "ufa": {"name": "Ufa", "lat": 54.7388, "lon": 55.9721, "h_to_vlad_km": 5200},
+        "perm": {"name": "Perm", "lat": 58.0105, "lon": 56.2502, "h_to_vlad_km": 5600}
+      },
+      "edges": [
+        {"from": "spb", "to": "moscow", "dist_km": 631.8},
+        {"from": "moscow", "to": "spb", "dist_km": 631.8},
+        {"from": "moscow", "to": "nizhny", "dist_km": 401.5},
+        {"from": "nizhny", "to": "moscow", "dist_km": 401.5},
+        {"from": "nizhny", "to": "kazan", "dist_km": 322.3},
+        {"from": "kazan", "to": "nizhny", "dist_km": 322.3},
+        {"from": "kazan", "to": "yekat", "dist_km": 717.7},
+        {"from": "yekat", "to": "kazan", "dist_km": 717.7},
+        {"from": "yekat", "to": "novosib", "dist_km": 1399.6},
+        {"from": "novosib", "to": "yekat", "dist_km": 1399.6},
+        {"from": "novosib", "to": "kras", "dist_km": 636.3},
+        {"from": "kras", "to": "novosib", "dist_km": 636.3},
+        {"from": "kras", "to": "irkutsk", "dist_km": 849.5},
+        {"from": "irkutsk", "to": "kras", "dist_km": 849.5},
+        {"from": "irkutsk", "to": "ulan", "dist_km": 460},
+        {"from": "ulan", "to": "irkutsk", "dist_km": 460},
+        {"from": "ulan", "to": "chita", "dist_km": 600},
+        {"from": "chita", "to": "ulan", "dist_km": 600},
+        {"from": "chita", "to": "khab", "dist_km": 1577.2},
+        {"from": "khab", "to": "chita", "dist_km": 1577.2},
+        {"from": "khab", "to": "vlad", "dist_km": 645.6},
+        {"from": "vlad", "to": "khab", "dist_km": 645.6},
+        {"from": "yekat", "to": "chelyabinsk", "dist_km": 200},
+        {"from": "chelyabinsk", "to": "yekat", "dist_km": 200},
+        {"from": "chelyabinsk", "to": "omsk", "dist_km": 900},
+        {"from": "omsk", "to": "chelyabinsk", "dist_km": 900},
+        {"from": "omsk", "to": "novosib", "dist_km": 600},
+        {"from": "novosib", "to": "omsk", "dist_km": 600},
+        {"from": "novosib", "to": "tomsk", "dist_km": 260},
+        {"from": "tomsk", "to": "novosib", "dist_km": 260},
+        {"from": "tomsk", "to": "kras", "dist_km": 600},
+        {"from": "kras", "to": "tomsk", "dist_km": 600},
+        {"from": "perm", "to": "yekat", "dist_km": 370},
+        {"from": "yekat", "to": "perm", "dist_km": 370},
+        {"from": "perm", "to": "kazan", "dist_km": 700},
+        {"from": "kazan", "to": "perm", "dist_km": 700},
+        {"from": "moscow", "to": "volgograd", "dist_km": 974},
+        {"from": "volgograd", "to": "moscow", "dist_km": 970},
+        {"from": "volgograd", "to": "rostov", "dist_km": 470},
+        {"from": "rostov", "to": "volgograd", "dist_km": 470},
+        {"from": "moscow", "to": "samara", "dist_km": 900},
+        {"from": "samara", "to": "moscow", "dist_km": 900},
+        {"from": "samara", "to": "ufa", "dist_km": 400},
+        {"from": "ufa", "to": "samara", "dist_km": 400},
+        {"from": "ufa", "to": "yekat", "dist_km": 430},
+        {"from": "yekat", "to": "ufa", "dist_km": 430}
+      ],
+      "goal": "vlad"
+    };
+
+    // Initialize map
+    var map = L.map('map').setView([61.5240, 105.3188], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 8,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Prepare city and graph objects
+    const cities = {};
+    const graph = {};
+    for (const key in data.cities) {
+      const c = data.cities[key];
+      cities[key] = [c.lat, c.lon];
+      graph[key] = {};
+    }
+    for (const edge of data.edges) {
+      graph[edge.from][edge.to] = edge.dist_km;
+    }
+
+    // Populate dropdowns
+    const startSelect = document.getElementById("start");
+    const goalSelect = document.getElementById("goal");
+    for (const key in data.cities) {
+      const option1 = new Option(data.cities[key].name, key);
+      const option2 = new Option(data.cities[key].name, key);
+      startSelect.add(option1);
+      goalSelect.add(option2);
+    }
+    startSelect.value = "spb";
+    goalSelect.value = data.goal;
+
+    // Plot city markers
+    const markers = {};
+    for (const [key, coords] of Object.entries(cities)) {
+      markers[key] = L.circleMarker(coords, {radius: 6, color: 'blue', fillOpacity: 0.8})
+        .bindTooltip(data.cities[key].name)
+        .addTo(map);
+    }
+
+    // Haversine distance heuristic
+    function haversine(a, b) {
+      const R = 6371;
+      const [lat1, lon1] = cities[a];
+      const [lat2, lon2] = cities[b];
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const la1 = lat1 * Math.PI / 180;
+      const la2 = lat2 * Math.PI / 180;
+      const h = Math.sin(dLat/2)**2 + Math.sin(dLon/2)**2 * Math.cos(la1) * Math.cos(la2);
+      return 2 * R * Math.asin(Math.sqrt(h));
+    }
+
+    // A* algorithm
+    function aStar(start, goal) {
+      const open = new Set([start]);
+      const cameFrom = {};
+      const gScore = {}, fScore = {};
+      for (const c in cities) { gScore[c] = Infinity; fScore[c] = Infinity; }
+      gScore[start] = 0;
+      fScore[start] = haversine(start, goal);
+
+      while (open.size > 0) {
+        let current = Array.from(open).reduce((a, b) => fScore[a] < fScore[b] ? a : b);
+        if (current === goal) return reconstructPath(cameFrom, current, gScore);
+
+        open.delete(current);
+        for (const neighbor in graph[current]) {
+          const tentative_g = gScore[current] + graph[current][neighbor];
+          if (tentative_g < gScore[neighbor]) {
+            cameFrom[neighbor] = current;
+            gScore[neighbor] = tentative_g;
+            fScore[neighbor] = gScore[neighbor] + haversine(neighbor, goal);
+            open.add(neighbor);
+          }
+        }
+      }
+      return {path: [], distance: 0};
+    }
+
+    function reconstructPath(cameFrom, current, gScore) {
+      const path = [current];
+      while (cameFrom[current]) {
+        current = cameFrom[current];
+        path.unshift(current);
+      }
+      return {path, distance: gScore[path[path.length-1]]};
+    }
+
+    let routeLine = null;
+    function runAStar() {
+      const start = startSelect.value;
+      const goal = goalSelect.value;
+      const result = aStar(start, goal);
+      const path = result.path;
+      const distance = result.distance;
+
+      if (routeLine) map.removeLayer(routeLine);
+      if (path.length === 0) {
+        document.getElementById("info").innerText = "No route found.";
+        return;
+      }
+      const coords = path.map(city => cities[city]);
+      routeLine = L.polyline(coords, {color: 'green', weight: 4}).addTo(map);
+      map.fitBounds(routeLine.getBounds());
+      document.getElementById("info").innerText =
+        `Shortest path: ${path.map(c => data.cities[c].name).join(" → ")} (Total distance: ${distance.toFixed(0)} km)`;
+    }
+  </script>
+</body>
+</html>

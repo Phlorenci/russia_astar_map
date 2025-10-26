@@ -1,0 +1,199 @@
+{
+  "Saint Petersburg": {
+    "coords": [59.9375, 30.3086],
+    "connections": {
+      "Moscow": 705,
+      "Novgorod": 190
+    }
+  },
+  "Novgorod": {
+    "coords": [58.521, 31.275],
+    "connections": {
+      "Saint Petersburg": 190,
+      "Moscow": 530
+    }
+  },
+  "Moscow": {
+    "coords": [55.7558, 37.6176],
+    "connections": {
+      "Saint Petersburg": 705,
+      "Novgorod": 530,
+      "Nizhny Novgorod": 420,
+      "Tula": 190,
+      "Vladimir": 180
+    }
+  },
+  "Tula": {
+    "coords": [54.1961, 37.6182],
+    "connections": {
+      "Moscow": 190,
+      "Voronezh": 400,
+      "Kursk": 380
+    }
+  },
+  "Vladimir": {
+    "coords": [56.1291, 40.4066],
+    "connections": {
+      "Moscow": 180,
+      "Nizhny Novgorod": 200
+    }
+  },
+  "Nizhny Novgorod": {
+    "coords": [56.2965, 43.9361],
+    "connections": {
+      "Vladimir": 200,
+      "Kazan": 400,
+      "Moscow": 420
+    }
+  },
+  "Kazan": {
+    "coords": [55.7963, 49.1088],
+    "connections": {
+      "Nizhny Novgorod": 400,
+      "Ulyanovsk": 190,
+      "Ufa": 480,
+      "Yekaterinburg": 820
+    }
+  },
+  "Ulyanovsk": {
+    "coords": [54.318, 48.383],
+    "connections": {
+      "Kazan": 190,
+      "Samara": 220
+    }
+  },
+  "Samara": {
+    "coords": [53.1959, 50.1002],
+    "connections": {
+      "Ulyanovsk": 220,
+      "Saratov": 340,
+      "Ufa": 460
+    }
+  },
+  "Saratov": {
+    "coords": [51.5406, 46.0086],
+    "connections": {
+      "Samara": 340,
+      "Volgograd": 380
+    }
+  },
+  "Volgograd": {
+    "coords": [48.708, 44.514],
+    "connections": {
+      "Saratov": 380,
+      "Rostov-on-Don": 470
+    }
+  },
+  "Rostov-on-Don": {
+    "coords": [47.2357, 39.7015],
+    "connections": {
+      "Volgograd": 470,
+      "Krasnodar": 270,
+      "Voronezh": 480
+    }
+  },
+  "Voronezh": {
+    "coords": [51.6755, 39.2089],
+    "connections": {
+      "Tula": 400,
+      "Rostov-on-Don": 480
+    }
+  },
+  "Krasnodar": {
+    "coords": [45.0393, 38.9872],
+    "connections": {
+      "Rostov-on-Don": 270,
+      "Sochi": 290
+    }
+  },
+  "Sochi": {
+    "coords": [43.6028, 39.7342],
+    "connections": {
+      "Krasnodar": 290
+    }
+  },
+  "Ufa": {
+    "coords": [54.7388, 55.9721],
+    "connections": {
+      "Kazan": 480,
+      "Samara": 460,
+      "Chelyabinsk": 430,
+      "Yekaterinburg": 500
+    }
+  },
+  "Chelyabinsk": {
+    "coords": [55.1644, 61.4368],
+    "connections": {
+      "Ufa": 430,
+      "Yekaterinburg": 200,
+      "Omsk": 1000
+    }
+  },
+  "Yekaterinburg": {
+    "coords": [56.8389, 60.6057],
+    "connections": {
+      "Kazan": 820,
+      "Ufa": 500,
+      "Chelyabinsk": 200,
+      "Tyumen": 330,
+      "Novosibirsk": 1400
+    }
+  },
+  "Tyumen": {
+    "coords": [57.153, 65.534],
+    "connections": {
+      "Yekaterinburg": 330,
+      "Omsk": 630
+    }
+  },
+  "Omsk": {
+    "coords": [54.9893, 73.3682],
+    "connections": {
+      "Tyumen": 630,
+      "Novosibirsk": 660,
+      "Chelyabinsk": 1000
+    }
+  },
+  "Novosibirsk": {
+    "coords": [55.0084, 82.9357],
+    "connections": {
+      "Yekaterinburg": 1400,
+      "Omsk": 660,
+      "Krasnoyarsk": 800
+    }
+  },
+  "Krasnoyarsk": {
+    "coords": [56.0153, 92.8932],
+    "connections": {
+      "Novosibirsk": 800,
+      "Irkutsk": 1100
+    }
+  },
+  "Irkutsk": {
+    "coords": [52.2896, 104.2817],
+    "connections": {
+      "Krasnoyarsk": 1100,
+      "Chita": 900
+    }
+  },
+  "Chita": {
+    "coords": [52.0333, 113.5000],
+    "connections": {
+      "Irkutsk": 900,
+      "Khabarovsk": 1300
+    }
+  },
+  "Khabarovsk": {
+    "coords": [48.4827, 135.0838],
+    "connections": {
+      "Chita": 1300,
+      "Vladivostok": 760
+    }
+  },
+  "Vladivostok": {
+    "coords": [43.1155, 131.8855],
+    "connections": {
+      "Khabarovsk": 760
+    }
+  }
+}
